@@ -25,7 +25,7 @@ The technique - **applicable to requests containing a body** - simply involves *
 Parameter value reflected in cookies
 ------
 
-During my research, I sometimes come across **parameters whose values are reflected in cookies**. Their function is often "marketing" or used to track the user's journey on the target platform for A/B testing or other similar purposes. I was trying out some techniques to see if anything interesting could be derived from them, but very often there isn't much to gain.
+During my research, I often come across **parameters whose values are reflected in cookies**. Their function is often "marketing" or used to track the user's journey on the target platform for A/B testing or other similar purposes. I was trying out some techniques to see if anything interesting could be derived from them, but very often there isn't much to gain.
 
 Using the bypass mentioned above, it is possible **to "DOS" a user and make a site inaccessible to the target** for a duration depending on the lifespan of the cookie.
 
