@@ -15,12 +15,12 @@ In search of challenges, zero-days, and bounties, I focused on widely used softw
 This article will focus on cache-poisoning. If you are unfamiliar with this vulnerability, I highly recommend starting by checking out my write-up titled "[DOS via cache poisoning on Mozilla](https://zhero-web-sec.github.io/dos-via-cache-poisoning/)".
 
 ## Index
-- [Start of research, disillusionment and n-day](#section-1)
-- [React Server Component and CDNs, a food poisoning](#section-2)
-- [Internal header, HTTP status and error page](#section-3)
+- [First vulnerability: Start of research, disillusionment and n-day](#section-1)
+- [Second vulnerability: React Server Component and CDNs, a food poisoning](#section-2)
+- [Third vulnerability: Internal header, HTTP status and error page](#section-3)
 - [Conclusion and Bonus](#section-4)
 
-<h2 id="section-1">Start of research, disillusionment and n-day</h2>
+<h2 id="section-1">First vulnerability: Start of research, disillusionment and n-day</h2>
 I quickly discovered an interesting behavior **related to the Next.js middleware**. When prefetching data for SSR (server-side rendering) pages, adding the `x-middleware-prefetch` header results in an empty JSON object `{}` as a response. If a CDN or caching system is present, this empty response can potentially be cached —depending on the cache rules configuration— rendering the targeted page **impractical and its content inaccessible**.
 
 <img src="/images/next-cache-1.png">
@@ -41,7 +41,7 @@ Excited by the idea of having discovered a fresh zero-day vulnerability, I quick
 ### Impact and severity
 This is a type of DOS via cache-poisoning with a CVSS score of 7.5: `CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N /I:N/A:H/CR:X/IR:X/AR:X`
 
-<h2 id="section-2">React Server Component and CDNs, a food poisoning</h2>
+<h2 id="section-2">Second vulnerability: React Server Component and CDNs, a food poisoning</h2>
 To begin with, what is React Component Server (RSC)?
 Answer from the [official next.js documentation](https://nextjs.org/learn/react-foundations/server-and-client-components):
 >The RSC Payload is a compact binary representation of the rendered React Server Components tree. It's used by React on the client to update the browser's DOM. The RSC Payload contains:
@@ -117,7 +117,7 @@ I contacted the Next.js team and discussed the issue with them. They concluded t
 - Vercel asks for additional information on April 17, 2024
 - Vercel final response April 29, 2024
 
-<h2 id="section-3">Internal header, HTTP status and error page</h2>
+<h2 id="section-3">Third vulnerability: Internal header, HTTP status and error page</h2>
 
 After taking a short break from my research, I decided to dive back in. I had the Next.js source code displayed on each of my screens, a cup of coffee in hand, and armed with my trusty companion for debugging, good old `console.log` (yes?). BismiLlah, I was ready for some intensive code review.
 
