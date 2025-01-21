@@ -73,6 +73,9 @@ You would have understood, it can be used in different ways even via XSS. Always
 
 The extremely high frequency of WAFs being bypassable through this technique makes the presence of this vulnerability quite common. This, because the two other constraints mentioned above are not particularly rare.
 
+*Published in June 2024.*
+
 -----
 
 [1] [#NahamCon2024: Modern WAF Bypass Techniques on Large Attack Surfaces](https://www.youtube.com/watch?v=0OMmWtU2Y_g&feature=youtu.be)
+

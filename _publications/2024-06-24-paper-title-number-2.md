@@ -265,3 +265,5 @@ Despite this, an attacker in a real situation only has to send the request from 
 
 **Response**: The CVSS score was not correctly set, the vulnerability allowing the page to be completely unavailable/impracticable for an indefinite period of time, the Availability parameter is set to High, which gives a score of 7.5 (high): `CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H/CR:X/IR:X/AR:X`
 >High (H): There is total loss of availability, resulting in the attacker being able to fully deny access to resources in the impacted component; this loss is either sustained (while the attacker continues to deliver the attack) or persistent (the condition persists even after the attack has completed). Alternatively, the attacker has the ability to deny some availability, but the loss of availability presents a direct, serious consequence to the impacted component (...)
+
+*Published in June 2024.*
