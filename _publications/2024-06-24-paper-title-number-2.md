@@ -2,12 +2,12 @@
 title: "Next.js and cache poisoning: a quest for the black hole"
 collection: publications
 permalink: /research-and-things/nextjs-and-cache-poisoning-a-quest-for-the-black-hole
-excerpt: ''
+excerpt: 'CVE-2024-XXXX'
 date: 2024-06-24
 venue: 'zhero_web_security'
 ---
 
-<img src="/images/next-cache-0.png">
+<img src="/images/next-cache-0.png" width="80%" style="display: block; margin: 0 auto">
 
 ## Introduction
 In search of challenges, zero-days, and bounties, I focused on widely used software to find interesting cases of cache-poisoning. My attention quickly turned to **Next.js**, an open-source JavaScript framework based on React, developed and maintained by Vercel. The Next package is downloaded more than [6 million times per week](https://www.npmjs.com/package/next), indicating its extensive use. A discovery in this software could potentially affect many users, which was all the motivation I needed to roll up my sleeves.

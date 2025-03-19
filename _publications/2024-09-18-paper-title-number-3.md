@@ -2,7 +2,7 @@
 title: "Next.js, cache, and chains: the stale elixir"
 collection: publications
 permalink: /research-and-things/nextjs-cache-and-chains-the-stale-elixir
-excerpt: ''
+excerpt: 'CVE-2024-46982'
 date: 2025-01-21
 venue: 'zhero_web_security'
 ---
@@ -12,7 +12,7 @@ venue: 'zhero_web_security'
 ## Introduction
 Some time after publishing my previous research on Next.js, I was left with a feeling of unfinished business. That work had sparked my curiosity, and I sensed that this framework still had more secrets to unveil. So, I grabbed my pickaxe once more and delved back into the depths of its source code.
 
-It turned out to be a good decision. The findings from this new research have had a significant impact on the ecosystem, and their application in the context of bug bounty programs has been remarkable (*after all, one can't survive on love, fresh water, and code reviews alone*). This led to numerous reports being submitted, cumulatively amounting to a beautiful a six-figure sum in bounties.
+It turned out to be a good decision. The findings from this new research have had a significant impact on the ecosystem, and their application in the context of bug bounty programs has been remarkable (*after all, one can't survive on love, fresh water, and code reviews alone*). This led to numerous reports being submitted, cumulatively amounting to a beautiful six-figure sum in bounties.
 
 As you've probably guessed, this article will focus on the highly popular Next.js — an open-source JavaScript framework based on React, developed and maintained by Vercel.
 

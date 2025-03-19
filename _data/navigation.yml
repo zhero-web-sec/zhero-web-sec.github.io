@@ -1,6 +1,6 @@
 # main links links
 main:
-  - title: "Research & Things"
+  - title: "research & things"
     url: /research-and-things/
 
   #- title: "Talks"
@@ -12,11 +12,11 @@ main:
   #- title: "Portfolio"
   #  url: /portfolio/
         
-  - title: "Writeups"
+  - title: "writeups"
     url: /writeups/
     
   #- title: "CV"
   #  url: /cv/
     
-  - title: "Whoami"
+  - title: "whoami"
     url: /whoami/
