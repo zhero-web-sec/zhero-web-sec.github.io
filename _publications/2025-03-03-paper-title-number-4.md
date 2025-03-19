@@ -20,12 +20,12 @@ The ability to trick the server into rendering the payload on main routes, which
 
 ## Index
 - [Rendering payload](#section-1)
-- [Lax regex](#section-2)
+- [Lax check](#section-2)
 - [Exploit: CP-DoS - Query](#section-3)
   - [Scope](#section-3-1)
-- [Exploit: CP-DoS - Hash](#section-3-2)
-- [Security advisory - CVE-2025-27415](#section-4)
-- [Conclusion](#section-5)
+- [Exploit: CP-DoS - Hash](#section-4)
+- [Security advisory - CVE-2025-27415](#section-5)
+- [Conclusion](#section-6)
 
 
 <h2 id="section-1">Rendering payload</h2>
@@ -41,7 +41,7 @@ Nuxt also externalizes this data on a specific route that matches the following 
 
 <img src="/images/nuxt-dos-2.png">
 
-<h2 id="section-2">Lax regex</h2>
+<h2 id="section-2">Lax check</h2>
 
 Checking the source code a little more closely, it turns out that Nuxt uses a regular expression to check if it is a rendering payload route:
 
@@ -90,7 +90,7 @@ Interestingly, **all pages** [1] **of a Nuxt application are vulnerable**, even 
 Those who read [my previous article on Next.JS](https://zhero-web-sec.github.io/research-and-things/nextjs-cache-and-chains-the-stale-elixir) will surely have noticed:
 this is an exploit similar to the "*Internal URL parameter and pageProps*" part, forcing the caching of the response altered by the addition of a URL parameter influencing the internal functioning of the framework. Small difference however, on Next.JS it was an "existing" internal URL parameter while here it is a question of abuse of the regex, no URL parameter - even internal - being initially provided for this.
 
-<h2 id="section-3-2">Exploit: CP-DoS - Hash</h2>
+<h2 id="section-4">Exploit: CP-DoS - Hash</h2>
 
 The requirement that URL parameters not be part of the cache key bothered me, and I pondered how to circumvent this constraint until I came up with the idea of ​​exploiting the hash; this had already been useful to me in the past to obtain an arbitrary JS execution during an Intigriti challenge (*for which my [write-up](https://zhero-web-sec.github.io/xss-intigriti-challenge-0523/) was selected among the three winners huh*).
 
@@ -104,11 +104,13 @@ With the entire URL tested, it was almost certain that sending a request to `#/_
 <img src="/images/nuxt-dos-9.png">
 *another BBP target*
 
-It should be noted, however, that depending on the stack (*reverse proxy, CDN, etc*), the hash may be encoded along the way, arriving at Nuxt in a form that is interpreted as a path -`%23/_payload.json`-, which does not exist, resulting in a 404 error and consequently aborting the attack.
+It should be noted, however, that depending on the stack (*reverse proxy, CDN, etc*), the hash may be encoded (*stripped or even generating an error*) along the way, arriving at Nuxt in a form that is interpreted as a path -`%23/_payload.json`-, which does not exist, resulting in a 404 error and consequently aborting the attack.
 
 I was able to validate this behavior locally and on certain BBP targets that did not have a cache system and therefore could not exploit it in this form, the few targets at my disposal either having a stack encoding the character or no cache system to poison.
 
-<h2 id="section-4">Security advisory - CVE-2025-27415</h2>
+I haven't had time to do a case-by-case analysis yet to look at how each CDN behaves with the hash, so I'll update this section once that's done. I still thought it would be useful to highlight this possibility.
+
+<h2 id="section-5">Security advisory - CVE-2025-27415</h2>
 
 **Affected versions**
 3.0.0 < 3.16.0
@@ -118,7 +120,7 @@ I was able to validate this behavior locally and on certain BBP targets that did
 
 [https://github.com/nuxt/nuxt/security/advisories/GHSA-jvhm-gjrh-3h93](https://github.com/nuxt/nuxt/security/advisories/GHSA-jvhm-gjrh-3h93)
 
-<h2 id="section-5">Conclusion</h2>
+<h2 id="section-6">Conclusion</h2>
 
 A simple request can make a site unusable, which can have a significant financial impact depending on the nature of the application (e-commerce, web3, etc.).
 
