@@ -118,6 +118,11 @@ I haven't had time to do a case-by-case analysis yet to look at how each CDN beh
 **Patched versions**
 3.16.0
 
+**Severity**
+
+`CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H`(High 7.5)
+
+
 [https://github.com/nuxt/nuxt/security/advisories/GHSA-jvhm-gjrh-3h93](https://github.com/nuxt/nuxt/security/advisories/GHSA-jvhm-gjrh-3h93)
 
 <h2 id="section-6">Conclusion</h2>
