@@ -47,7 +47,7 @@ A common use of middleware is for **authorization**, which involves **protecting
 
 >Authentication and Authorization: Ensure user identity and check session cookies before granting access to specific pages or API routes (*Next.js [documentation](https://nextjs.org/docs/app/building-your-application/routing/middleware)*).
 
-*Exemple*: When a user attempts to access `dashboard/admin`, their request will first go through the middleware, which will check if their session cookies are valid and grant them the necessary permissions. If so, the middleware will forward the request; otherwise, the middleware will redirect the user to a login page:
+*Exemple*: When a user attempts to access `/dashboard/admin`, their request will first go through the middleware, which will check if their session cookies are valid and grant them the necessary permissions. If so, the middleware will forward the request; otherwise, the middleware will redirect the user to a login page:
 
 <img src="/images/next-middleware-1.png">
 
@@ -174,7 +174,7 @@ This seems to be there [to prevent recursive requests](https://nextjs.org/blog/c
 Since we know you like this, here are some real examples from BBP programs.
 
 <h3 id="section-4-1">Authorization/Rewrite bypass</h3>
-Here, when we try to access `admin/login` we get a `404`. As we can see in the response header, a path rewrite is performed via the middleware to prevent unauthenticated/inappropriate users from accessing it:
+Here, when we try to access `/admin/login` we get a `404`. As we can see in the response header, a path rewrite is performed via the middleware to prevent unauthenticated/inappropriate users from accessing it:
 
 <img src="/images/next-middleware-6.png">
 
@@ -235,7 +235,7 @@ If patching to a safe version is infeasible, we recommend that you prevent exter
 
 **More**
 
-At the time of writing, applications on Vercel, Netlify, and [Cloudflare](https://developers.cloudflare.com/changelog/2025-03-22-next-js-vulnerability-waf/) are apparently no longer vulnerable:
+At the time of writing, applications on Vercel and Netlify are apparently no longer vulnerable (*Update: Cloudflare [has moved this rule to opt-in only](https://x.com/elithrar/status/1903526240847331362) due to numerous false positives that fail to distinguish between requests from legitimate users and those from potential attackers*):
 
 <img src="/images/next-middleware-14.png" width="70%" style="display: block; margin: 0 auto">
 
