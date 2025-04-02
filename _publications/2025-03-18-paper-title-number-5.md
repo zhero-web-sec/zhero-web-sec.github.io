@@ -199,7 +199,7 @@ Let's bypass it:
 
 **Note:** Notice the difference in payload between the two targets, one of them used the `src/` directory, the other did not.
 
-<h3 id="section-4-2">DoS via Cache-Poisoning (what?)</h3>
+<h3 id="section-4-3">DoS via Cache-Poisoning (what?)</h3>
 
 Yes, a cache-poisoning DoS is also possible via this vulnerability. This is obviously not what we're looking for first, but if no sensitive paths are protected, and nothing more interesting seems exploitable, then certain situations can lead to a CPDoS:
 
@@ -209,7 +209,7 @@ If the site has a cache/CDN system, it may be possible to **force the caching** 
 
 <img src="/images/next-middleware-10.png">
 
-<h3 id="section-4-3">Clarification</h3>
+<h3 id="section-4-4">Clarification</h3>
 
 Since the security advisory was released, we've received a few inquiries from people concerned about their applications and not understanding the scope of the attack. To be clear, the vulnerable element is the middleware. If it isn't used (or at least isn't used for sensitive purposes), there's nothing to worry about (*check the DoS aspect above, though*), since bypassing the middleware won't bypass any security mechanisms.
 
@@ -273,3 +273,5 @@ Thank you for reading.
 Al hamduliLlah;
 
 [zhero;](https://x.com/zhero___) & [inzo_](https://x.com/inzo____)
+
+*Published in March 2025*
