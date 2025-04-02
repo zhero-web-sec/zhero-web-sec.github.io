@@ -1,7 +1,7 @@
 ---
 title: "React Router and the Remix'ed path"
 collection: publications
-permalink: /research-and-things/remix
+permalink: /research-and-things/react-router-and-the-remixed-path
 excerpt: 'CVE-2025-31137'
 date: 2025-04-01
 venue: 'zhero_web_security'
