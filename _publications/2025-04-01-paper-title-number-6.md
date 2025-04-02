@@ -91,7 +91,7 @@ Without further ado, here is [the vulnerable code](https://github.com/remix-run/
 The code is clear and speaks for itself:
 - The two values are retrieved then split in order to retrieve the part after the colon character (`:`), so traditionally, the "port"
 - The value of `hostnamePort` (`x-forwarded-host`) has priority over `hostPort` (since the values ​​are evaluated from left to right, the first truthy value is chosen) and is assigned to the `port` variable
-- The `port` value is directly concatenated - without sanitization/verification - to `req.hostname` (*the value of* `Host`*, without the port*) then assigned to the variable `resolvedHost`; 
+- The `port` value is directly concatenated - without sanitization/verification - to `req.hostname` (*the value of* `Host`*) then assigned to the variable `resolvedHost`; 
 
 [**1**] *Here, we can see that, unlike* `x-forwarded-host`*, it is possible to inject the path directly at the* `host` *level (without needing to go through the supposed port). This is because the value of* `req.hostname` *is used in its entirety, without sanitization/verification, and is then used to create the URL object. However, as mentioned earlier, the use of* `Host` *for URL manipulation is very rarely possible in real-world scenarios, unlike* `x-forwarded-host`.
 - The `resolvedHost` variable is concatenated - again, without sanitization/verification - with the protocol and the current path (`req.originalUrl`) to create the URL object
