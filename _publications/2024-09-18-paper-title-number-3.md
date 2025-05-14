@@ -154,7 +154,7 @@ req.headers['x-now-route-matches']
 It would therefore be sufficient for the header to be present in the request to achieve our goal. While the likelihood of it being stripped from an external request is high, the test is surprisingly positive:
 
 <img src="/images/p6.png">
-*dopamine shot*
+*it feels good*
 
 The `/poc` endpoint here uses the `getServerSideProps` function, so a **request containing SSR data**, which, as a reminder, contains **dynamic** data and is therefore supposed -*as mentioned above*- to have the following `cache-control` : 
 
@@ -189,7 +189,7 @@ By combining in the request:
 1. The internal URL parameter `__nextDataReq` to make it a **data request**
 2. The header `x-now-route-matches` to make it pass for an `SSG` thereby changing the `Cache-Control`
 
-It is possible to cache the JSON object `pageProps` on the target endpoint **altering the content of any page** (*provided it uses one of the two next.js data functions*);
+It is possible to cache the JSON object `pageProps` on the target endpoint **altering the content of any SSR page**;
 
 Normal request to the `/poc` endpoint:
 <img src="/images/p7.png">
@@ -202,7 +202,7 @@ Request to the `/poc` endpoint by adding the `__nextDataReq` parameter and the `
 
 And now when I access the `/poc` endpoint without adding any URL parameter or anything:
 <img src="/images/p10.png">
-*b o o m*
+*boo-*
 
 **The cache is poisoned**, and the "JSON" object is served instead of the page content. We get a nice DoS that greatly impacts `availability`, but it doesn't stop there.
 
@@ -214,7 +214,7 @@ Now, the sharpest among you are surely wondering: since we’re now accessing th
 
 This means that any value of the request (*initially sent by the attacker*) being reflected in the response is a vector for a SXSS... As explained before, developers very often use `getServerSideProps` to transmit information from the user request to the page: user-agent, CSRF token, cookies, headers, URL parameters, etc.
 
-So for an SXSS to be possible, **it only takes one element to be reflected**. A quick test with the `/poc` endpoint, where the `user-agent` is reflected (*a common case*) results in the following request to poison the cache:
+So for an SXSS to be possible, **it only takes one element to be reflected**. A quick test with the `/poc` endpoint, where the `user-agent` is reflected results in the following request to poison the cache:
 
 ```
 GET /poc?__nextDataReq=1 HTTP/1.1
@@ -233,7 +233,7 @@ Once the malicious request is sent, a nice surprise awaits us by accessing `/poc
 <img src="/images/p11.png">
 *Stored XSS on Next.js*
 
-The payload is now cached and will be triggered -without any interaction- every time a user visits the impacted endpoint. The repercussions of such a vulnerability are catastrophic, and can allow a malicious actor to extract personal data from users and/or perform mass account takeovers.
+The payload is now cached and will be triggered, without any interaction, every time a user visits the impacted page/endpoint. The repercussions of such a vulnerability are catastrophic, and can allow a malicious actor to extract personal data from users and/or perform mass account takeovers depending on other factors as is the case for classic XSS attacks.
 
 As explained earlier, when `getServerSideProps` is used, **it’s very likely** that an element from the request is reflected in the response, the main reason for this function being to transmit data only available at the time of the request. During my research on various bug bounty programs, here are the elements most frequently encountered (*list obviously not exhaustive*):
 - cookie/header value about language preferences -locale- (*en,fr..*)
@@ -244,7 +244,7 @@ As explained earlier, when `getServerSideProps` is used, **it’s very likely** 
 - context-specific cookies for the target app
 - host header (unlikely but it happened)
 
-A few months ago, one of the programs I had reported a stored XSS via cache poisoning to —a large, well-known ecommerce platform—replied (*after paying me a nice critical bounty*), stating that they had implemented a fix. The fix focused on the `__nextDataReq` parameter, but as we’ll see, this was not enough to fully mitigate the bug.
+A few months ago, one of the programs I had reported a stored XSS via cache poisoning to -a large, well-known ecommerce platform- replied stating that they had implemented a fix. The fix focused on the `__nextDataReq` parameter, but as we’ll see, this was not enough to fully mitigate the bug.
 
 <h3 id="section-3-3">Exploitation - Another way</h3>
 

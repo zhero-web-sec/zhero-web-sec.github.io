@@ -1,12 +1,13 @@
 ---
-permalink: /whoami/
-title: "Whoami"
+permalink: /zhero/
+title: "About"
 author_profile: true
 redirect_from: 
   - /md/
   - /markdown.html
 ---
 
+----------
 Rachid Allam, 100% self-taught, web vulnerability researcher. 
 
 - HackerOne: [https://hackerone.com/zhero_](https://hackerone.com/zhero_)
