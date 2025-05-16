@@ -12,7 +12,7 @@ venue: 'zhero_web_security'
 ## Introduction
 Back to the Next.js framework this time, with a modest but rather interesting piece of research born out of a need to bypass the patch implemented following one of my previous vulnerabilities, CVE-2024-46982, still my favorite to date on Next. I strongly recommend reading the previous paper on the subject for a better understanding, namely "[Next.js, cache, and chains: the stale elixir](https://zhero-web-sec.github.io/research-and-things/nextjs-cache-and-chains-the-stale-elixir)". I won’t go into detail about the previous CVE, nor revisit some basic concepts already covered earlier (SSG, SSR..).
 
-It all started some time ago, when I was looking for vulnerable targets (BBP) to the famous stale elixir. I came across an asset whose version was higher than that of the patch and exhibited strange behavior, prompting me to take another look at the source code, which led to the discovery of a of race condition, which - when chainable with a cache poisoning - allows bypassing the previous patch, potentially leading to an SXSS in the best/worst case scenario.
+It all started some time ago, when I was looking for vulnerable targets (BBP) to the famous stale elixir. I came across an asset whose version was higher than that of the patch and exhibited strange behavior, prompting me to take another look at the source code, which led to the discovery of race condition, which - when chainable with a cache poisoning - allows bypassing the previous patch, potentially leading to an SXSS in the best/worst case scenario, depending on the point of view.
 
 Its exploitability stems from **misconfigurations/poor implementation practices** that are for the most part outside the scope of Next.js's responsibility, making the `AC: H` metric in the CVSS vector fully appropriate, as you'll soon see. I still found it worthwhile to document, especially since there are a few real-world targets out there that remain exposed, enough to be of interest to some fellow hunters.
 
@@ -40,8 +40,9 @@ As a reminder, CVE-2024-46982 directly impacted **the framework's caching system
 
 **The goal is therefore to find a way to obtain a complete alteration of the page again by pageProps under a text/htmt content-type**, for versions between 14.2.10 and 15.1.6 (*the version from which the header is stripped*). Keeping in mind that the exploit this time will not impact the framework cache but an external one, poorly configured, thus reducing its scope significantly due to its very conditioned nature.
 
-<h2 id="section-2">Batcher and cache-key</h2>
+All local tests performed in this paper were done on version **15.0.4**, on the `pages` router (*router affected by CVE-2024-46982*).
 
+<h2 id="section-2">Batcher and cache-key</h2>
 
 It all starts [here](https://github.com/vercel/next.js/blob/40a10943a5fe682573c18de8d7ecc655f01640bc/packages/next/src/lib/batcher.ts#L70), a batcher used as a promise anti-duplication mechanism: when several calls with the same key are made before the previous one completes, the batcher executes the `fn` function only once and shares the result with all callers.
 
@@ -67,7 +68,7 @@ However, [we know](https://zhero-web-sec.github.io/research-and-things/nextjs-ca
 <img src="/images/next-race-5.png" style="display: block; margin: 0 auto">
 *request containing the x-now-route-matches header to an SSR endpoint*
 
-A little debugging reveals that when the header is added to our SSR endpoint: `/poc`, the `fn` function is triggered twice, with two different `cacheKeys`:
+A little debugging reveals that when the header is added to our request to the SSR page: `/poc`, the `fn` function is triggered twice, with two different `cacheKeys`:
 
 - `/poc-0`    -> page initially requested
 - `/_error-0` -> error page was requested due to confusion caused by the header; although the SSR page may appear to be an SSG page because of the header, its nature remains unchanged, and it therefore lacks revalidation, which causes Next.js to throw an error in [*src/server/base-server.ts*](https://github.com/vercel/next.js/blob/d1ee0f0cd7568318fa2cb5c23356f1a01fcd21db/packages/next/src/server/base-server.ts#L3354) :
@@ -78,7 +79,7 @@ if (cacheEntry.revalidate < 1) {
 }
 ```
 
-The initial exploit for CVE-2024-46982 combined the `x-now-route-matches` header for the SSG and the `__nextDataReq` URL parameter to make it a data request. By sending a request combining these two elements, we still get a `500` status code, but with a different body/content-type this time:
+The initial exploit for CVE-2024-46982 combined the `x-now-route-matches` header for the SSG and the `__nextDataReq` URL parameter to make it a data request. Now (*after the fix*), by sending a request combining these two elements, we still get a `500` status code, but with a different body/content-type this time:
 
 <img src="/images/next-race-6.png" style="display: block; margin: 0 auto">
 
@@ -98,14 +99,14 @@ What’s interesting is that despite the error, the HTML prepared by the `fn` fu
 
 Let’s pause for a moment and list the ingredients:
 - One request containing the HTML of the `/_error` page in its body, with the actual cacheKey: `/_error-0`
-- A second request containing the much-desired `pageProps` in its body, having been overwritten further down the execution pipeline with **InternalServerError**, also using the cacheKey: `/_error-0`
+- A second request containing the much-desired `pageProps` in its body, having been overwritten further down the execution pipeline with "**InternalServerError**", also using the cacheKey: `/_error-0`
 - A batcher acting as a promise anti-duplication mechanism based on the `cacheKey`
 
 <h2 id="section-3">Race Condition - It's eclipse time</h2>
 
 <img src="/images/next-race-16.png" width="70%" style="display: block; margin: 0 auto">
 
-By sending both requests simultaneously, we can exploit the batcher mechanism to get the `pageProps` in a completely altered `text/html` response:
+By sending **both requests simultaneously**, we can **hijack the promise anti-duplication mechanism** to get the `pageProps` in a completely altered `text/html` response:
 
 <img src="/images/next-race-10.png" style="display: block; margin: 0 auto">
 *pageProps rebirth!*
@@ -145,14 +146,16 @@ Here is a reproduction of a case encountered on a very large platform, which sha
 <img src="/images/next-race-12.png" style="display: block; margin: 0 auto">
 *based on a true story*
 
-Note that as soon as any element of the request is passed through `getServerSideProps` - whose original purpose is to provide data that isn't available at build time, like the cookie here - it becomes a potential attack vector, regardless of its initial use on the client side, since we're merely rendering the props in a `text/html` type response.
+Note that as soon as any element of the request is passed through `getServerSideProps` (`getInitialProps` *for _app.tsx*) - whose original purpose is to provide data that isn't available at build time, like the cookie here - it becomes a potential attack vector, regardless of its initial use on the client side, since we're merely rendering the props in a `text/html` type response.
 
 **For the second point**, regarding the `cache-control` restriction, it's much rarer but I came across some applications that had configured surprising cache rules, which seemed to override the cache-control coming from the origin when it wasn't a JSON response. I don't know the reason, and to be honest, I didn't really look for it, but oddly enough, all of them used Fastly:
 
 <img src="/images/next-race-13.png" style="display: block; margin: 0 auto">
 *asset of a bug bounty program - race condition to cache-poisoning*
 
-When these two points are combined, it becomes possible to chain the race-condition with a cache-poisoning attack to ultimately bypass the patch, with the key difference being that the affected caching system is no longer the one provided by the framework.
+When these two points are combined, it becomes possible to **chain the race-condition with a cache-poisoning attack to ultimately bypass the patch**, with the key difference being that the affected caching system is no longer the one provided by the framework.
+
+Although I often used custom (*and dirty*) scripts for my exploits on real targets, I can’t close this chapter without a shout-out to [James Kettle](https://x.com/albinowax) for his exceptional work on the [single-packet attack](https://portswigger.net/research/the-single-packet-attack-making-remote-race-conditions-local), particularly the Burp functionality that allows sending a group of parallel requests while neutralizing interference from network jitter making execution much simpler. 
 
 <h2 id="section-4">Bonus - Another way: never-say-never</h2>
 
@@ -183,9 +186,17 @@ Notice the differences when the exploit is delivered this way, a `200` response 
 
 <h2 id="section-5">Security Advisory - CVE-2025-32421</h2>
 
+**Affected versions** : <14.2.24, >15.0.0 and <15.1.6
+
+**Patched versions** : ≥14.2.24 <15.0.0, ≥15.1.6
+
+[https://github.com/vercel/next.js/security/advisories/GHSA-qpjv-v59x-3qc4](https://github.com/vercel/next.js/security/advisories/GHSA-qpjv-v59x-3qc4)
+
+**Vercel changelog :** [https://vercel.com/changelog/cve-2025-32421](https://vercel.com/changelog/cve-2025-32421)
+
 <h2 id="section-6">Conclusion</h2>
 
-As a result, bypassing the previous CVE is partially possible, sometimes depending on certain factors beyond the control of Next.js, partly due to poor configuration choices. Despite this, the planets align far more often than one might think, and when they do, the damage can be significant, ranging from a simple DoS to stored XSS via Cache-Poisoning. I’ve already identified and reported several vulnerable assets through bug bounty programs, a crucial step in funding these research efforts.
+As a result, bypassing the previous CVE is partially possible via two different techniques, sometimes depending on certain factors beyond the control of Next.js, partly due to poor configuration choices. Despite this, the planets align far more often than one might think, and when they do, the damage can be significant, ranging from a simple DoS to stored XSS via (Race-Condition +) Cache-Poisoning. I’ve already identified and reported several vulnerable assets through bug bounty programs, a crucial step in funding these research efforts.
 
 Note: Going forward, only research that leads to findings differing in exploitation methods or outcomes from those already published will be shared on this blog (*like this one*), regardless of their severity or impact on the ecosystem -*except under exceptional circumstances*- in order to avoid redundancy.
 
