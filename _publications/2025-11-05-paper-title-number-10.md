@@ -123,7 +123,7 @@ which affects how the URL is parsed: the process switches to what the specificat
 
 > Otherwise, if url is **special**, set state to special authority slashes state. (...)
 
-But since the column character (`:`) is not followed by a slash (`U+002F (/)`), the parser, according to the specification, sets the state to `special authority ignore slashes state`:
+But since the colon character (`:`) is not followed by a slash (`U+002F (/)`), the parser, according to the specification, sets the state to `special authority ignore slashes state`:
 
 > special authority slashes state
 >
