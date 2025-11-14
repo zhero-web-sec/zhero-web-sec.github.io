@@ -258,7 +258,7 @@ url is special -> special authority slashes state ->
 special authority ignore slashes state -> authority state
 ```
 
-It should be noted that what precedes the host is already set to `http(s)://` since we are not using `x-forwarded-proto` here. The presence of the two slashes after the column character would therefore have forced the authority state regardless of the scheme's value.
+It should be noted that what precedes the host is already set to `http(s)://` since we are not using `x-forwarded-proto` here. The presence of the two slashes after the colon character would therefore have forced the authority state regardless of the scheme's value.
 
 From there, the following request on the example SSR application (*the same as before, from the Astro repo*) yields an "SSRF":
 
