@@ -17,3 +17,4 @@ Rachid Allam, 100% self-taught, web vulnerability researcher.
 ------
 
 - X: [https://x.com/zhero\_\_\_](https://x.com/zhero___)
+- Linkedin: [https://www.linkedin.com/in/rachid-allam-zhero](https://www.linkedin.com/in/rachid-allam-zhero)

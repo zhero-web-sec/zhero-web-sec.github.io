@@ -108,11 +108,11 @@ Typically, to exploit cache poisoning, we leverage the presence of URL parameter
 
 In our case, to trigger a DoS attack via cache poisoning by altering the content of different endpoints on the target site through the JSON object `pageProps`, the target site must have a caching system, and the URL parameters must **not be part of the cache-key**. This ensures that during the [content-negotiation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation) phase, the caching system **doesn't differentiate** between these two requests:
 
-A: `https://www.example.com`
+A: `https://www.example.com/?__nextDataReq=1`
 
-B: `https://www.example.com/?__nextDataReq=1`
+B: `https://www.example.com`
 
-Consequently serving the response of request `B` -*cached by the attacker*- to users making request `A`. The attacker must therefore wait for the cache-duration to be reset and be the first to send their request during this brief window, ensuring that their poisoned response gets cached. Note that using a script that sends requests at regular intervals makes the process naturally easier. Nothing crazy, but the impact is there.
+Consequently serving the response of request `A` -*cached by the attacker*- to users making request `B`. The attacker must therefore wait for the cache-duration to be reset and be the first to send their request during this brief window, ensuring that their poisoned response gets cached. Note that using a script that sends requests at regular intervals makes the process naturally easier. Nothing crazy, but the impact is there.
 
 <h3 id="section-2-3">Real world exploitation (Bug Bounty)</h3>
 
@@ -212,7 +212,7 @@ Any element that can be added to the request that has a disruptive effect on the
 
 Now, the sharpest among you are surely wondering: since we’re now accessing the “normal” page without artificially modifying it, what about the `content-type`? It should no longer be a `application/json` response.. Looking at the poisoned response (`/poc`) in my proxy gave me a good shot of dopamine, when we directly access the poisoned endpoint (*without* `__nextDataReq`) the `content-type` is `text/html`!
 
-This means that any value of the request (*initially sent by the attacker*) being reflected in the response is a vector for a SXSS... As explained before, developers very often use `getServerSideProps` to transmit information from the user request to the page: user-agent, CSRF token, cookies, headers, URL parameters, etc.
+This means that any value of the request (*initially sent by the attacker*) being reflected in the response is a vector for a SXSS. As explained before, developers very often use `getServerSideProps` to transmit information from the user request to the page: user-agent, CSRF token, cookies, headers, URL parameters, etc.
 
 So for an SXSS to be possible, **it only takes one element to be reflected**. A quick test with the `/poc` endpoint, where the `user-agent` is reflected results in the following request to poison the cache:
 
@@ -268,7 +268,7 @@ The result being exactly the same as with the use of the internal parameter, as 
 <h3 id="section-3-3-5">Exploitation - Cache deception</h3>
 
 As you may have guessed, it is also possible to exploit the `stale-while-revalidate` aspect to perform a cache-deception attack. I would probably write a separate article for this type of attack.
-But to make it short, I was able to exploit this type of attack (*BBP*), allowing to "revalidate" the response with the response of a victim forcing the caching of this personal information, provided -of course- that the targeted endpoint reflected user data within it.
+But to make it short, I was able to exploit this type of attack (*BBP*), allowing to "revalidate" the response with the response of a victim forcing the caching of his personal information, provided, of course, that the targeted endpoint reflected user data within it.
 
 <h3 id="section-3-4">Specific cases</h3>
 
