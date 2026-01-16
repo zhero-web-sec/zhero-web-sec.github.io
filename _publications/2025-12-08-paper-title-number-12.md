@@ -249,7 +249,7 @@ Timeline :
 - 2025-11-30 : Report sent via the GitHub template
 - 2025-12-06 : Report acknowledged
 - 2026-01-15 : Release of the patched versions
-- 2025-01-15 : Publication of the security advisory
+- 2026-01-15 : Publication of the security advisory
 
 Thank you for reading.
 
