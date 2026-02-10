@@ -129,6 +129,9 @@ I was able to win quite a few nice bounties via this vector, the severity being 
 
 
 <h2 id="section-3">CVE-2024-46982: The stale elixir</h2>
+
+**Important note**: the cache affected in this section, as well as in subsequent sections, is **the framework’s internal caching mechanism**. Consequently, the exploits presented below **do not depend on the presence of an external caching layer**, which significantly increases the severity of the issue, as it affects applications by default (*when the conditions cited below are present*) and cannot be mitigated by cache-layer configuration alone.
+
 It all starts with this particularly [interesting conditional statement](https://github.com/vercel/next.js/blob/979fedb8d42b9e42f515e9e5451b5b3c96b97d53/packages/next/src/server/base-server.ts#L1991), which, when it returns `true` considers the request to be an `SSG` (Server Static Generation, as seen previously):
 
 <img src="/images/p5.png">
@@ -178,7 +181,7 @@ From [RFC 5861](https://www.rfc-editor.org/rfc/rfc5861.txt):
    in the background, thereby hiding latency (both in the network and on
    the server) from clients.
 
-Ok, so caching is possible and as is customary when a CP is feasible: whatever its duration, a simple script automating the sending of poisoned requests at small intervals is sufficient to "stabilize" its poisoning.
+So, caching is possible and as is customary when a CP is feasible: whatever its duration, a simple script automating the sending of poisoned requests at small intervals is sufficient to "stabilize" its poisoning.
 
 <h3 id="section-3-1">Exploitation - DoS via Cache Poisoning</h3>
 
@@ -235,7 +238,7 @@ Once the malicious request is sent, a nice surprise awaits us by accessing `/poc
 
 The payload is now cached and will be triggered, without any interaction, every time a user visits the impacted page/endpoint. The repercussions of such a vulnerability are catastrophic, and can allow a malicious actor to extract personal data from users and/or perform mass account takeovers depending on other factors as is the case for classic XSS attacks.
 
-As explained earlier, when `getServerSideProps` is used, **it’s very likely** that an element from the request is reflected in the response, the main reason for this function being to transmit data only available at the time of the request. During my research on various bug bounty programs, here are the elements most frequently encountered (*list obviously not exhaustive*):
+As explained earlier, when `getServerSideProps` is used, it’s very likely that an element from the request is reflected in the response, the main reason for this function being to transmit data only available at the time of the request. During my research on various bug bounty programs, here are the elements most frequently encountered:
 - cookie/header value about language preferences -locale- (*en,fr..*)
 - session cookie/uid/anonymousId..
 - user-agent
@@ -262,8 +265,6 @@ Response served by the poisoned cache when accessing `/poc`:
 <img src="/images/p13.png">
 
 The result being exactly the same as with the use of the internal parameter, as the request is a **data request** in both cases.
-
-<img src="/images/p16.png" width="75%" style="display: block; margin: 0 auto">
 
 <h3 id="section-3-3-5">Exploitation - Cache deception</h3>
 
@@ -318,5 +319,7 @@ Other articles about new research are in the pipeline and coming soon -in shaa A
 Thank you for reading.
 
 Al hamduliLlah;
+
+[zhero;](https://x.com/zhero___)
 
 *Published in January 2025.*
