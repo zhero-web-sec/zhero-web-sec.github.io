@@ -9,6 +9,8 @@ venue: 'zhero_web_security'
 
 <img src="/images/p14.png">
 
+**This paper was selected as the 7th best web research in [PortSwigger’s Top 10 Web Hacking Techniques of 2025](https://portswigger.net/research/top-10-web-hacking-techniques-of-2025).**
+
 ## Introduction
 Some time after publishing my previous research on Next.js, I was left with a feeling of unfinished business. That work had sparked my curiosity, and I sensed that this framework still had more secrets to unveil. So, I grabbed my pickaxe once more and delved back into the depths of its source code.
 
