@@ -316,6 +316,11 @@ All sectors were affected, some of which were extremely sensitive platforms: mon
 <img src="/images/p15.png" width="70%" style="display: block; margin: 0 auto">
 *some wins*
 
+[?] **Check out how I bypassed the fix for this vulnerability by chaining a race condition with cache poisoning (potentially leading to SXSS) here**:
+
+
+[Eclipse on Next.js: Conditioned exploitation of an intended race-condition - CVE-2025-32421](https://zhero-web-sec.github.io/research-and-things/eclipse-on-nextjs-conditioned-exploitation-of-an-intended-race-condition)
+
 Other articles about new research are in the pipeline and coming soon -in shaa Allah-, feel free to follow my updates on X.
 
 Thank you for reading.
